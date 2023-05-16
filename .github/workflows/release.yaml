@@ -1,0 +1,54 @@
+# on push to main branch build and create new release with zipped dist folder
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 18
+      - run: npm install
+      - run: npm run build
+      - run: zip -r dist.zip dist package.json package-lock.json
+      - uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: dist.zip
+
+# create new tag with git short_sha and upload dist.zip as release asset
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          name: dist
+      - name: Get git short SHA
+        id: vars
+        run: echo "::set-output name=sha_short::$(git rev-parse --short=7 ${{ github.sha }})"
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.vars.outputs.sha_short }}
+          release_name: Release ${{ steps.vars.outputs.sha_short }}
+          draft: false
+          prerelease: false
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist.zip
+          asset_name: dist.zip
+          asset_content_type: application/zip
