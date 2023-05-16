@@ -1,0 +1,2 @@
+# MrDuck
+Discord welcome bot
