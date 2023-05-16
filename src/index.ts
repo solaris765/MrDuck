@@ -1,10 +1,16 @@
 import { createNewClient } from "./client"
+import {existsSync, mkdirSync} from 'fs'
+
+if (!existsSync('data')) {
+  console.log('Creating data folder')
+  mkdirSync('data');
+}
 
 if (!process.env.DISCORD_BOT_TOKEN) {
   console.error("No token provided. Please set the TOKEN environment variable.")
   process.exit(1)
 }
-if (!process.env.CLIENT_ID) {
+if (!process.env.DISCORD_CLIENT_ID) {
   console.error("No client ID provided. Please set the CLIENT_ID environment variable.")
   process.exit(1)
 }

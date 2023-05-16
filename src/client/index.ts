@@ -16,7 +16,7 @@ export async function createNewClient() {
   client = new Client({
     intents: [
       GatewayIntentBits.Guilds,
-      GatewayIntentBits.GuildPresences,
+      // GatewayIntentBits.GuildPresences,
       GatewayIntentBits.GuildMembers,
     ]
   })
